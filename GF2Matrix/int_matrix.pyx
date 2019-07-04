@@ -1,3 +1,6 @@
+from functools import reduce
+from typing import List
+
 import numpy as np
 import cython
 cimport numpy as np
@@ -5,13 +8,33 @@ cimport numpy as np
 DTYPE = np.uint64
 ctypedef np.uint64_t DTYPE_t
 
+cdef int rank(np.ndarray[DTYPE_t, ndim=1] rows, ncols):
+    cdef int rank = 0
+    cdef DTYPE_t pivot_row
+    cdef np.ndarray[DTYPE_t, ndim=1] old_rows
+    for col_mask in (1 << col for col in range(ncols)):
+        pivot_row = 0
+        old_rows = rows
+        rows = np.ndarray(1, dtype=DTYPE)
+        for row in old_rows:
+            if not row & col_mask:
+                np.append(rows, row)
+            elif pivot_row:
+                np.append(rows, row ^ pivot_row)
+            else:
+                pivot_row = row
+                rank += 1
+    return rank
+
+
 class IntMatrix:
 
     # cdef DTYPE_t rows
     # cdef DTYPE_t columns
 
-
     def __init__(self, size=(64, 64)):
+        if size[0] > 64 or size[1] > 64:
+            raise ValueError("Maximum matrix size is 64*64")
         self.rows = size[0]
         self.columns = size[1]
         self.data = np.zeros(self.rows, dtype=DTYPE)
@@ -19,17 +42,22 @@ class IntMatrix:
     def __repr__(self):
         raise NotImplemented()
 
-
     def __add__(self, other):
         if self.rows != other.rows or self.columns != other.columns:
             raise ValueError("Dimensions don't match.")
-        result = IntMatrix((self.rows, self.columns))
+        result = IntMatrix(self.size())
         for i in range(self.rows):
-            result.data[i] = self.data[i] ^ self.data[i]
+            result.data[i] = self.data[i] ^ other.data[i]
         return result
 
     def __mul__(self, other):
-        pass
+        if self.cols != other.rows:
+            raise ValueError("Dimension mismatch.")
+        result = IntMatrix(self.size())
+        for i in range(self.rows):
+            for j in range(self.columns):
+                result[i][j] = reduce(lambda x, y: x ^ y, map(lambda x, y: x & y, self.get_row(i), self.get_column(j)))
+        return result
 
     def __sub__(self, other):
         # subtraction is the same as addition in GF(2)
@@ -45,10 +73,21 @@ class IntMatrix:
         row, column = coords
         return (self.data[row] >> column) & 1
 
-    def get_row(self, i) -> str:
+    def get_row(self, i):
         if i > self.rows:
             raise IndexError("Index out of range.")
         return [int(n) for n in np.binary_repr(self.data[i], self.columns)]
+
+    def set_row(self, i, bitstring):
+        if i > self.rows:
+            raise IndexError("Index out of range.")
+        # if it isn't a integer, try to convert it to one, i.e if its a list.
+        if isinstance(bitstring, List):
+            bitstring = 0
+            for bit in bitstring:
+                bitstring = (bitstring << 1) | bit
+        bitstring = DTYPE(bitstring)
+        self.data[i] = bitstring
 
     def get_column(self, i):
         if i > self.columns:
@@ -58,12 +97,16 @@ class IntMatrix:
     def __str__(self):
         string = ''
         for i in range(self.rows):
-            string += np.binary_repr(self.data[i], self.columns) + "\n"
+            # making sure to reverse, as the least significant bit is at position 0.
+            string += " ".join(np.binary_repr(self.data[i], self.columns)[::-1]) + "\n"
         return string
+
+    def size(self):
+        return self.rows, self.columns
 
     def rank(self):
         rank = 0
-        for col_mask in (1 << col for col in range(self.columns)):
+        for col_mask in (DTYPE(1) << col for col in np.arange(0, self.columns, dtype=DTYPE)):
             pivot_row = None
             rows, old_rows = [], self.data
             for row in old_rows:
@@ -75,4 +118,3 @@ class IntMatrix:
                     pivot_row = row
                     rank += 1
         return rank
-
