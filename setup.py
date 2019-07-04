@@ -1,11 +1,18 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+from setuptools.extension import Extension
 from Cython.Build import cythonize
 import numpy
+
+extensions = [Extension("GF2Matrix.int_matrix",
+                        ["GF2Matrix/int_matrix.pyx"],
+                        include_dirs=[numpy.get_include()]
+                        )
+              ]
 
 setup(
     name='GF2Matrix-eg207',
     version='0.2',
-    packages=['GF2Matrix'],
+    packages=find_packages(),
     #package_dir={'': 'GF2Matrix'},
     url='https://github.com/EwanGilligan/GF2Matrix',
     license='MIT',
@@ -13,8 +20,7 @@ setup(
     author_email='eg207@st-andrews.ac.uk',
     description='Cython implementation of a matrix with entries from GF(2).',
     install_requires=['numpy', 'cython'],
-    ext_modules=cythonize("GF2Matrix/int_matrix.pyx"),
-    include_dirs=[numpy.get_include()],
+    ext_modules=cythonize(extensions),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
