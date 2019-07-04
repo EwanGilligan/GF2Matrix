@@ -111,6 +111,12 @@ class IntMatrix:
             separator = '\n '
         return string + '>'
 
+    def __copy__(self):
+        copy = IntMatrix(self.size)
+        for i in range(self.rows):
+            copy.data[i] = self.data[i]
+        return copy
+
     def size(self):
         return self.rows, self.columns
 
