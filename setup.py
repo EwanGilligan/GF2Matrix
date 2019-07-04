@@ -12,6 +12,7 @@ setup(
     author='Ewan Gilligan',
     author_email='eg207@st-andrews.ac.uk',
     description='Cython implementation of a matrix with entries from GF(2).',
+    install_requires=['numpy', 'cython'],
     ext_modules=cythonize("GF2Matrix/int_matrix.pyx"),
     include_dirs=[numpy.get_include()]
 )
