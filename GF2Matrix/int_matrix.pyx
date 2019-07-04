@@ -51,12 +51,14 @@ class IntMatrix:
         return result
 
     def __mul__(self, other):
-        if self.cols != other.rows:
+        if self.columns != other.rows:
             raise ValueError("Dimension mismatch.")
-        result = IntMatrix(self.size())
+        result = IntMatrix((self.rows, other.columns))
         for i in range(self.rows):
-            for j in range(self.columns):
-                result[i][j] = reduce(lambda x, y: x ^ y, map(lambda x, y: x & y, self.get_row(i), self.get_column(j)))
+            for j in range(other.columns):
+                print(self.get_row(i))
+                print(other.get_column(j))
+                result[i, j] = reduce(lambda x, y: x ^ y, map(lambda x, y: x & y, self.get_row(i), other.get_column(j)))
         return result
 
     def __sub__(self, other):
@@ -64,9 +66,11 @@ class IntMatrix:
         return self + other
 
     def __setitem__(self, coords, value):
-        if value != 1 or value != 0:
+        value = DTYPE(value)
+        if not (value == 1 or value == 0):
             raise ValueError("Value must be from {1,0}.")
         row, column = coords
+        column = DTYPE(column)
         self.data[row] |= value << column
 
     def __getitem__(self, coords):
@@ -76,11 +80,11 @@ class IntMatrix:
     def get_row(self, i):
         if i > self.rows:
             raise IndexError("Index out of range.")
-        return [int(n) for n in reversed(np.binary_repr(self.data[i], self.columns))]
+        return [DTYPE(int(n)) for n in reversed(np.binary_repr(self.data[i], self.columns))]
 
     def set_row(self, i, bitstring):
-        if len(bitstring) > self.columns:
-            raise ValueError("Bitstring too long.")
+        if len(bitstring) != self.columns:
+            raise ValueError("Bitstring too not correct length.")
         if i > self.rows:
             raise IndexError("Index out of range.")
         if not isinstance(bitstring, List):
@@ -92,18 +96,20 @@ class IntMatrix:
             value = (value << 1) | bit
         self.data[i] = value
 
-
     def get_column(self, i):
         if i > self.columns:
             raise IndexError("Index out of range.")
-        return [self.data[row] >> i for row in range(self.columns)]
+        i = DTYPE(i)
+        return [(self.data[row] >> i) & DTYPE(1) for row in range(self.rows)]
 
     def __str__(self):
-        string = ''
+        string = '<'
+        separator = ''
         for i in range(self.rows):
             # making sure to reverse, as the least significant bit is at position 0.
-            string += " ".join(np.binary_repr(self.data[i], self.columns)[::-1]) + "\n"
-        return string
+            string += separator + " ".join(np.binary_repr(self.data[i], self.columns)[::-1])
+            separator = '\n '
+        return string + '>'
 
     def size(self):
         return self.rows, self.columns

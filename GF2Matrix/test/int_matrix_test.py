@@ -63,6 +63,30 @@ class IntMatrixTester(unittest.TestCase):
         self.assertEqual(result.data[1], 0b101, "Wrong result.")
         self.assertEqual(result.data[2], 0b111, "Wrong result.")
 
+    def test_mul(self):
+        m1 = IntMatrix((2, 3))
+        m1.set_row(0, [1, 0, 1])
+        m1.set_row(1, [0, 0, 1])
+        m2 = IntMatrix((3, 2))
+        m2.set_row(0, [1, 0])
+        m2.set_row(1, [1, 1])
+        m2.set_row(2, [0, 1])
+        result = m1 * m2
+        self.assertEqual(result.size(), (2, 2))
+        self.assertListEqual(result.get_row(0), [1, 1])
+        self.assertListEqual(result.get_row(1), [0, 1])
+
+    def test_get_column(self):
+        m1 = IntMatrix((4, 4))
+        m1.set_row(0, [1, 1, 1, 0])
+        m1.set_row(1, [1, 0, 1, 0])
+        m1.set_row(2, [0, 1, 1, 0])
+        m1.set_row(3, [0, 0, 1, 0])
+        self.assertListEqual(m1.get_column(0), [1, 1, 0, 0])
+        self.assertListEqual(m1.get_column(1), [1, 0, 1, 0])
+        self.assertListEqual(m1.get_column(2), [1, 1, 1, 1])
+        self.assertListEqual(m1.get_column(3), [0, 0, 0, 0])
+
     def test_set_row(self):
         m = IntMatrix((3, 3))
         m.set_row(0, [1, 1, 0])
