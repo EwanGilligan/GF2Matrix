@@ -3,7 +3,7 @@ from Cython.Build import cythonize
 import numpy
 
 setup(
-    name='GF2Matrix',
+    name='GF2Matrix-eg207',
     version='0.2',
     packages=['GF2Matrix'],
     #package_dir={'': 'GF2Matrix'},
@@ -14,5 +14,10 @@ setup(
     description='Cython implementation of a matrix with entries from GF(2).',
     install_requires=['numpy', 'cython'],
     ext_modules=cythonize("GF2Matrix/int_matrix.pyx"),
-    include_dirs=[numpy.get_include()]
+    include_dirs=[numpy.get_include()],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ]
 )
