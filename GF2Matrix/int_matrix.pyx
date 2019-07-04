@@ -76,18 +76,22 @@ class IntMatrix:
     def get_row(self, i):
         if i > self.rows:
             raise IndexError("Index out of range.")
-        return [int(n) for n in np.binary_repr(self.data[i], self.columns)]
+        return [int(n) for n in reversed(np.binary_repr(self.data[i], self.columns))]
 
     def set_row(self, i, bitstring):
+        if len(bitstring) > self.columns:
+            raise ValueError("Bitstring too long.")
         if i > self.rows:
             raise IndexError("Index out of range.")
-        # if it isn't a integer, try to convert it to one, i.e if its a list.
-        if isinstance(bitstring, List):
-            bitstring = 0
-            for bit in bitstring:
-                bitstring = (bitstring << 1) | bit
-        bitstring = DTYPE(bitstring)
-        self.data[i] = bitstring
+        if not isinstance(bitstring, List):
+            raise ValueError("List not given.")
+        if bitstring.count(1) + bitstring.count(0) != len(bitstring):
+            raise ValueError("Values must be from {0,1}")
+        value = 0
+        for bit in reversed(bitstring):
+            value = (value << 1) | bit
+        self.data[i] = value
+
 
     def get_column(self, i):
         if i > self.columns:
@@ -106,9 +110,10 @@ class IntMatrix:
 
     def rank(self):
         rank = 0
+        rows = self.data
         for col_mask in (DTYPE(1) << col for col in np.arange(0, self.columns, dtype=DTYPE)):
             pivot_row = None
-            rows, old_rows = [], self.data
+            rows, old_rows = [], rows
             for row in old_rows:
                 if not row & col_mask:
                     rows.append(row)
