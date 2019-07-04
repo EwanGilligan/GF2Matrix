@@ -4,7 +4,7 @@ import numpy
 
 setup(
     name='GF2Matrix',
-    version='0.1',
+    version='0.2',
     packages=['GF2Matrix'],
     #package_dir={'': 'GF2Matrix'},
     url='https://github.com/EwanGilligan/GF2Matrix',
