@@ -6,8 +6,8 @@ Cython implementation of a matrix with entries from GF(2).
   * computation of Rank
 
 ## To add:
-  *support for larger matrices
-  *more complex operations, such as LUP Decomposition and Guassian Elimination
+  * Support for larger matrices
+  * More complex operations, such as LUP Decomposition and Guassian Elimination
 
 ## Dependancies:
   * Cython
