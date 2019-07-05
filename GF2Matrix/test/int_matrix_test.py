@@ -1,8 +1,6 @@
 import numpy as np
 import unittest
 import pyximport
-
-pyximport.install(setup_args={"include_dirs": np.get_include()})
 from GF2Matrix import IntMatrix
 
 
