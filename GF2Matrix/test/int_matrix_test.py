@@ -28,17 +28,26 @@ class IntMatrixTester(unittest.TestCase):
         self.assertRaises(ValueError, IntMatrix, (65, 65))
 
     def test_negative_sizes(self):
+        """
+        Tests than an Exception is thrown when the sizes are less than 1.
+        """
         self.assertRaises(ValueError, IntMatrix, (0, 0))
         self.assertRaises(ValueError, IntMatrix, (-1, 32))
         self.assertRaises(ValueError, IntMatrix, (32, -1))
 
     def test_boundary_size(self):
+        """
+        Tests that the maximum size of matrix can be initialised.
+        """
         try:
             IntMatrix((64, 64))
         except ValueError:
             self.fail("Initialisation of IntMatrix raised ValueError for 64*64")
 
     def test_add(self):
+        """
+        Tests that addition works correctly.
+        """
         m1 = IntMatrix((3, 3))
         m1.data[0] = 0b111
         m1.data[1] = 0b101
@@ -54,6 +63,9 @@ class IntMatrixTester(unittest.TestCase):
         self.assertEqual(result.data[2], 0b111, "Wrong result.")
 
     def test_sub(self):
+        """
+        Tests that subtraction works correctly.
+        """
         m1 = IntMatrix((3, 3))
         m1.data[0] = 0b111
         m1.data[1] = 0b101
@@ -69,6 +81,9 @@ class IntMatrixTester(unittest.TestCase):
         self.assertEqual(result.data[2], 0b111, "Wrong result.")
 
     def test_mul(self):
+        """
+        Tests that multiplication works correctly.
+        """
         m1 = IntMatrix((2, 3))
         m1.set_row(0, [1, 0, 1])
         m1.set_row(1, [0, 0, 1])
@@ -114,6 +129,9 @@ class IntMatrixTester(unittest.TestCase):
         self.assertEqual(m[1, 0], 1)
 
     def test_get_item_out_of_bounds(self):
+        """
+        Tests that get item raises an exception when the indices are invalid.
+        """
         m = IntMatrix((2, 2))
         self.assertRaises(IndexError, m.__getitem__, (-1, 0))
         self.assertRaises(IndexError, m.__getitem__, (0, -1))
@@ -121,6 +139,9 @@ class IntMatrixTester(unittest.TestCase):
         self.assertRaises(IndexError, m.__getitem__, (0, 2))
 
     def test_get_column(self):
+        """
+        Tests that get_column works correctly.
+        """
         m1 = IntMatrix((4, 4))
         m1.set_row(0, [1, 1, 1, 0])
         m1.set_row(1, [1, 0, 1, 0])
@@ -132,11 +153,17 @@ class IntMatrixTester(unittest.TestCase):
         self.assertListEqual(m1.get_column(3), [0, 0, 0, 0])
 
     def test_get_column_out_of_bounds(self):
+        """
+        Tests that get column raises an exception when the indices are out of bounds.
+        """
         m = IntMatrix((2, 3))
         self.assertRaises(IndexError, m.get_row, -1)
         self.assertRaises(IndexError, m.get_row, 2)
 
     def test_set_column(self):
+        """
+        Tests that set column works correctly.
+        """
         m = IntMatrix((3, 3))
         column1 = [1, 1, 0]
         column2 = [0, 1, 1]
@@ -149,6 +176,9 @@ class IntMatrixTester(unittest.TestCase):
         self.assertListEqual(m.get_column(2), column3)
 
     def test_set_column_out_of_bounds(self):
+        """
+        Tests that set column raises an exception when the indices are out of bounds.
+        """
         m = IntMatrix((2, 3))
         self.assertRaises(IndexError, m.get_row, -1)
         self.assertRaises(IndexError, m.get_row, 2)
@@ -182,6 +212,9 @@ class IntMatrixTester(unittest.TestCase):
         self.assertRaises(TypeError, m.set_column, 0, 1)
 
     def test_set_row(self):
+        """
+        Tests that set row works correctly.
+        """
         m = IntMatrix((3, 3))
         m.set_row(0, [1, 1, 0])
         m.set_row(1, [0, 1, 1])
@@ -225,6 +258,9 @@ class IntMatrixTester(unittest.TestCase):
         self.assertRaises(TypeError, m.set_row, 0, 1)
 
     def test_get_row(self):
+        """
+        Tests that get row works correctly.
+        """
         m = IntMatrix((4, 4))
         row1 = [1, 1, 0, 1]
         row2 = [0, 1, 1, 1]
@@ -240,11 +276,19 @@ class IntMatrixTester(unittest.TestCase):
         self.assertListEqual(m.get_row(3), row4, "Wrong value in row.")
 
     def test_get_row_out_of_bounds(self):
+        """
+        Tests that get row raises an exception when the indices are out of bounds.
+        """
         m = IntMatrix((2, 3))
         self.assertRaises(IndexError, m.set_row, -1, [1, 1, 1])
         self.assertRaises(IndexError, m.set_row, 2, [1, 1, 1])
 
     def test_rank_1(self):
+        """
+        Tests that the rank is calculated correctly.
+
+        The rank was verified by hand.
+        """
         # Checks rank for 0 matrix
         m = IntMatrix()
         self.assertEqual(m.rank(), 0)
@@ -256,6 +300,11 @@ class IntMatrixTester(unittest.TestCase):
         self.assertEqual(m1.rank(), 3, "Wrong Rank")
 
     def test_rank_2(self):
+        """
+        Tests that the rank is calculated correctly.
+
+        The rank was verified by hand.
+        """
         m2 = IntMatrix((5, 4))
         m2.set_row(0, [1, 0, 1, 0])
         m2.set_row(1, [1, 1, 0, 1])
