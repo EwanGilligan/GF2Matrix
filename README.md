@@ -3,11 +3,12 @@ Cython implementation of a matrix with entries from [GF(2)](https://en.wikipedia
 
 ## Curent Functionality
   * Basic matrix operation of matrices up to 64*64
-  * computation of Rank
+  * Computation of Rank
 
 ## To add:
-  * Support for larger matrices
-  * More complex operations, such as LUP Decomposition and Guassian Elimination
+  * Further optimisations.
+  * Support for larger matrices.
+  * More complex operations, such as LUP Decomposition and Guassian Elimination.
 
 ## Dependancies:
   * Cython
