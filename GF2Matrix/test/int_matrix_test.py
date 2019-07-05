@@ -27,9 +27,14 @@ class IntMatrixTester(unittest.TestCase):
         self.assertRaises(ValueError, IntMatrix, (65, 1))
         self.assertRaises(ValueError, IntMatrix, (65, 65))
 
+    def test_negative_sizes(self):
+        self.assertRaises(ValueError, IntMatrix, (0, 0))
+        self.assertRaises(ValueError, IntMatrix, (-1, 32))
+        self.assertRaises(ValueError, IntMatrix, (32, -1))
+
     def test_boundary_size(self):
         try:
-            IntMatrix()
+            IntMatrix((64, 64))
         except ValueError:
             self.fail("Initialisation of IntMatrix raised ValueError for 64*64")
 
@@ -76,6 +81,45 @@ class IntMatrixTester(unittest.TestCase):
         self.assertListEqual(result.get_row(0), [1, 1])
         self.assertListEqual(result.get_row(1), [0, 1])
 
+    def test_set_item(self):
+        """
+        Tests that the set item method works correctly.
+        """
+        m = IntMatrix((2, 2))
+        m[0, 1] = 1
+        self.assertEqual(m.data[0], 0b10)
+        m[1, 0] = 1
+        self.assertEqual(m.data[1], 0b01)
+
+    def test_set_item_out_of_bounds(self):
+        """
+        Tests that an IndexError is thrown when the coordinates are out of bounds.
+        """
+        m = IntMatrix((2, 2))
+        self.assertRaises(IndexError, m.__setitem__, (-1, 0), 1)
+        self.assertRaises(IndexError, m.__setitem__, (0, -1), 1)
+        self.assertRaises(IndexError, m.__setitem__, (2, 0), 1)
+        self.assertRaises(IndexError, m.__setitem__, (0, 2), 1)
+
+    def test_get_item(self):
+        """
+        Tests than get item works correctly.
+        """
+        m = IntMatrix((2, 2))
+        self.assertEqual(m[0, 1], 0)
+        self.assertEqual(m[1, 0], 0)
+        m.data[0] = 0b10
+        m.data[1] = 0b01
+        self.assertEqual(m[0, 1], 1)
+        self.assertEqual(m[1, 0], 1)
+
+    def test_get_item_out_of_bounds(self):
+        m = IntMatrix((2, 2))
+        self.assertRaises(IndexError, m.__getitem__, (-1, 0))
+        self.assertRaises(IndexError, m.__getitem__, (0, -1))
+        self.assertRaises(IndexError, m.__getitem__, (2, 0))
+        self.assertRaises(IndexError, m.__getitem__, (0, 2))
+
     def test_get_column(self):
         m1 = IntMatrix((4, 4))
         m1.set_row(0, [1, 1, 1, 0])
@@ -87,6 +131,56 @@ class IntMatrixTester(unittest.TestCase):
         self.assertListEqual(m1.get_column(2), [1, 1, 1, 1])
         self.assertListEqual(m1.get_column(3), [0, 0, 0, 0])
 
+    def test_get_column_out_of_bounds(self):
+        m = IntMatrix((2, 3))
+        self.assertRaises(IndexError, m.get_row, -1)
+        self.assertRaises(IndexError, m.get_row, 2)
+
+    def test_set_column(self):
+        m = IntMatrix((3, 3))
+        column1 = [1, 1, 0]
+        column2 = [0, 1, 1]
+        column3 = [0, 0, 1]
+        m.set_column(0, column1)
+        m.set_column(1, column2)
+        m.set_column(2, column3)
+        self.assertListEqual(m.get_column(0), column1)
+        self.assertListEqual(m.get_column(1), column2)
+        self.assertListEqual(m.get_column(2), column3)
+
+    def test_set_column_out_of_bounds(self):
+        m = IntMatrix((2, 3))
+        self.assertRaises(IndexError, m.get_row, -1)
+        self.assertRaises(IndexError, m.get_row, 2)
+
+    def test_set_columns_wrong_values(self):
+        """
+        Tests than the correct exception is thrown when a value that is not 0 or 1 is inserted into a column.
+        """
+        m = IntMatrix((3, 3))
+        self.assertRaises(ValueError, m.set_column, 0, [2, 1, 0])
+
+    def test_set_column_short_list(self):
+        """
+        Tests an exception is thrown when the list isn't long enough.
+        """
+        m = IntMatrix((3, 3))
+        self.assertRaises(ValueError, m.set_column, 0, [1, 1])
+
+    def test_set_column_long_list(self):
+        """
+        Tests an exception is thrown when the list is too long
+        """
+        m = IntMatrix((3, 3))
+        self.assertRaises(ValueError, m.set_column, 0, [1, 1, 1, 0])
+
+    def test_set_column_non_indexable(self):
+        """
+        Tests an exception is thrown when the value given isn't indexable.
+        """
+        m = IntMatrix((3, 3))
+        self.assertRaises(TypeError, m.set_column, 0, 1)
+
     def test_set_row(self):
         m = IntMatrix((3, 3))
         m.set_row(0, [1, 1, 0])
@@ -96,6 +190,39 @@ class IntMatrixTester(unittest.TestCase):
         self.assertEqual(m.data[0], 0b011)
         self.assertEqual(m.data[1], 0b110)
         self.assertEqual(m.data[2], 0b010)
+
+    def test_set_row_out_of_bounds(self):
+        m = IntMatrix((2, 3))
+        self.assertRaises(IndexError, m.set_row, -1, [1, 1, 1])
+        self.assertRaises(IndexError, m.set_row, 2, [1, 1, 1])
+
+    def test_set_row_wrong_values(self):
+        """
+        Tests that a ValueError is thrown when a value that is not 0 or 1 is inserted in a row.
+        """
+        m = IntMatrix((3, 3))
+        self.assertRaises(ValueError, m.set_row, 0, [-1, 1, 0])
+
+    def test_set_row_short_list(self):
+        """
+        Tests that an Exception is thrown when the list isn't long enough.
+        """
+        m = IntMatrix((3, 3))
+        self.assertRaises(ValueError, m.set_row, 0, [1, 1])
+
+    def test_set_row_long_list(self):
+        """
+        Tests that an Exception is thrown when the list is too long.
+        """
+        m = IntMatrix((3, 3))
+        self.assertRaises(ValueError, m.set_row, 0, [1, 1, 1, 1])
+
+    def test_set_row_non_indexable(self):
+        """
+        Tests that an Exception is thrown when a indexable value isn't given.
+        """
+        m = IntMatrix((3, 3))
+        self.assertRaises(TypeError, m.set_row, 0, 1)
 
     def test_get_row(self):
         m = IntMatrix((4, 4))
@@ -111,6 +238,11 @@ class IntMatrixTester(unittest.TestCase):
         self.assertListEqual(m.get_row(1), row2, "Wrong value in row.")
         self.assertListEqual(m.get_row(2), row3, "Wrong value in row.")
         self.assertListEqual(m.get_row(3), row4, "Wrong value in row.")
+
+    def test_get_row_out_of_bounds(self):
+        m = IntMatrix((2, 3))
+        self.assertRaises(IndexError, m.set_row, -1, [1, 1, 1])
+        self.assertRaises(IndexError, m.set_row, 2, [1, 1, 1])
 
     def test_rank_1(self):
         # Checks rank for 0 matrix
