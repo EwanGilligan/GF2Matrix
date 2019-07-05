@@ -31,7 +31,7 @@ class IntMatrix:
     Class to represent a matrix with entries from GF(2).
 
     This implementation has a maximum size of 64*64 matrices. This is done for efficiency, as the rows of the matrices are stored as unsigned 64 bit integers.
-    The 0th entry of each row corresponds to the least significant bit of the integer. Storing as integers allows for efficient operations using bitwise operators. 
+    The 0th entry of each row corresponds to the least significant bit of the integer. Storing as integers allows for efficient operations using bitwise operators.
     """
 
     # cdef DTYPE_t rows

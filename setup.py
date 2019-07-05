@@ -10,8 +10,8 @@ extensions = [Extension("GF2Matrix.int_matrix",
               ]
 
 setup(
-    name='GF2Matrix-eg207',
-    version='0.3',
+    name='GF2Matrix',
+    version='1.0',
     packages=find_packages(),
     #package_dir={'': 'GF2Matrix'},
     url='https://github.com/EwanGilligan/GF2Matrix',
@@ -24,6 +24,5 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
     ]
 )
