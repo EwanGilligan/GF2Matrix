@@ -118,7 +118,7 @@ class IntMatrix:
         if not (0 <= coords[0] < self.rows and 0 <= coords[1] < self.columns):
             raise IndexError()
         row, column = coords
-        return (self.data[row] >> column) & 1
+        return (self.data[row] >> DTYPE(column)) & DTYPE(1)
 
     def get_row(self, i):
         """
@@ -128,7 +128,7 @@ class IntMatrix:
         :return: List containing the values of the row.
         """
 
-        if 0 < i > self.rows:
+        if not 0 <= i < self.rows:
             raise IndexError("Index out of range.")
         return [DTYPE(int(n)) for n in reversed(np.binary_repr(self.data[i], self.columns))]
 
@@ -140,11 +140,9 @@ class IntMatrix:
         """
 
         if len(bitstring) != self.columns:
-            raise ValueError("Bitstring too not correct length.")
-        if i > self.rows:
+            raise ValueError("List is of incorrect length.")
+        if not 0 <= i < self.rows:
             raise IndexError()
-        if not isinstance(bitstring, List):
-            raise ValueError("List not given.")
         if bitstring.count(1) + bitstring.count(0) != len(bitstring):
             raise ValueError("Values must be from {0,1}")
         value = 0
@@ -159,7 +157,7 @@ class IntMatrix:
         :param i: The index of the column to return.
         :return: List containing the values of the column.
         """
-        if 0 < i > self.columns:
+        if not 0 <= i < self.columns:
             raise IndexError()
         i = DTYPE(i)
         return [(self.data[row] >> i) & DTYPE(1) for row in range(self.rows)]
@@ -174,10 +172,8 @@ class IntMatrix:
 
         if len(bitstring) != self.columns:
             raise ValueError("Bitstring too not correct length.")
-        if i > self.rows:
+        if not 0 <= i < self.columns:
             raise IndexError("Index out of range.")
-        if not isinstance(bitstring, List):
-            raise ValueError("List not given.")
         if bitstring.count(1) + bitstring.count(0) != len(bitstring):
             raise ValueError("Values must be from {0,1}")
 
@@ -236,3 +232,4 @@ class IntMatrix:
                     pivot_row = row
                     rank += 1
         return rank
+
