@@ -3,27 +3,11 @@ from typing import List
 
 import numpy as np
 cimport numpy as np
+cimport cython
 
 DTYPE = np.uint64
 ctypedef np.uint64_t DTYPE_t
 
-cdef int rank(np.ndarray[DTYPE_t, ndim=1] rows, ncols):
-    cdef int rank = 0
-    cdef DTYPE_t pivot_row
-    cdef np.ndarray[DTYPE_t, ndim=1] old_rows
-    for col_mask in (1 << col for col in range(ncols)):
-        pivot_row = 0
-        old_rows = rows
-        rows = np.ndarray(1, dtype=DTYPE)
-        for row in old_rows:
-            if not row & col_mask:
-                np.append(rows, row)
-            elif pivot_row:
-                np.append(rows, row ^ pivot_row)
-            else:
-                pivot_row = row
-                rank += 1
-    return rank
 
 
 class IntMatrix:
@@ -58,12 +42,12 @@ class IntMatrix:
         :return: IntMatrix representing the result of the addition.
         :rtype: IntMatrix
         """
-
         if self.rows != other.rows or self.columns != other.columns:
             raise ValueError("Dimensions don't match.")
         result = IntMatrix(self.size())
-        for i in range(self.rows):
-            result.data[i] = self.data[i] ^ other.data[i]
+        _add(self.data, other.data, result.data)
+        # for i in range(self.rows):
+        #     result.data[i] = self.data[i] ^ other.data[i]
         return result
 
     def __mul__(self, other):
@@ -218,23 +202,54 @@ class IntMatrix:
         """
         Calculate the rank of the matrix.
 
-        Works by elimination on each column, instead of looking for the first non-zero column.
-        This means it doesn't iterate over the set of rows multiple times per column. This will be fastest
-        for dense matrices.
+        This function modifies the input array.
 
-        :return: the rank of the matrix.
+        :return: The rank of the matrix.
         """
-        rank = 0
-        rows = self.data
-        for col_mask in (DTYPE(1) << col for col in np.arange(0, self.columns, dtype=DTYPE)):
-            pivot_row = None
-            rows, old_rows = [], rows
-            for row in old_rows:
-                if not row & col_mask:
-                    rows.append(row)
-                elif pivot_row:
-                    rows.append(row ^ pivot_row)
-                else:
-                    pivot_row = row
-                    rank += 1
-        return rank
+        return _rank(self.data)
+        # rank = 0
+        # rows = self.data
+        # for col_mask in (DTYPE(1) << col for col in np.arange(0, self.columns, dtype=DTYPE)):
+        #     pivot_row = None
+        #     rows, old_rows = [], rows
+        #     for row in old_rows:
+        #         if not row & col_mask:
+        #             rows.append(row)
+        #         elif pivot_row:
+        #             rows.append(row ^ pivot_row)
+        #         else:
+        #             pivot_row = row
+        #             rank += 1
+        # return rank
+
+@cython.boundscheck(False) # turn off bounds-checking for entire function
+@cython.wraparound(False)  # turn off negative index wrapping for entire function
+cdef size_t _rank(DTYPE_t[:] rows):
+    """
+    Find rank of a matrix over GF2.
+
+    This function modifies the input array.
+    """
+    cdef size_t i, j, nrows, rank
+    cdef DTYPE_t pivot_row, row, lsb
+    nrows = rows.shape[0]
+    rank = 0
+    for i in range(nrows):
+        pivot_row = rows[i]
+        if pivot_row:
+            rank += 1
+            lsb = pivot_row & -pivot_row
+            for j in range(i + 1, nrows):
+                row = rows[j]
+                if row & lsb:
+                    rows[j] = row ^ pivot_row
+    return rank
+
+@cython.boundscheck(False) # turn off bounds-checking for entire function
+@cython.wraparound(False)  # turn off negative index wrapping for entire function
+cdef  _add(DTYPE_t[:] m1, DTYPE_t[:] m2, DTYPE_t[:] result):
+    nrows = result.shape[0]
+    for i in range(nrows):
+        result[i] = m1[i] ^ m2[i]
+
+
