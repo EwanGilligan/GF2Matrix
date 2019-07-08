@@ -11,7 +11,7 @@ extensions = [Extension("GF2Matrix.int_matrix",
 
 setup(
     name='GF2Matrix',
-    version='1.0.1',
+    version='1.0.2',
     packages=find_packages(),
     #package_dir={'': 'GF2Matrix'},
     url='https://github.com/EwanGilligan/GF2Matrix',
